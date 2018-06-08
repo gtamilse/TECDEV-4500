@@ -114,7 +114,6 @@ cisco@ansible-controller:~$ grep inventory /etc/ansible/ansible.cfg | grep hosts
 inventory      = /etc/ansible/hosts
 
 cisco@ansible-controller:~$ grep -v "#" /etc/ansible/hosts | grep -v ^$
-localhost
 [IOS]
 R1	ansible_host=172.16.101.XX ansible_user=cisco ansible_ssh_pass=cisco
 [XR]
@@ -340,12 +339,22 @@ cisco@ansible-controller:~$ ansible XR --connection local -m iosxr_command -a "c
 
 ---
 
-# Part-2: Playbook primer
+# 2. Playbook primer
 - Ansible playbook exercises require creating YAML style playbook files.
 - There are two options to create playbook files.
 	- Option-1: Create the file in "Atom" editor, on the laptop. Atom is preconfigured with remote-sync: when you save the file in the default local directory(cl2018), it will automatically get copied to the home directory of your Ansible controller (/home/cisco).
 	- Option-2: Use Ubuntu's "vi" or "vim" editor, which is included in your Ansible controller.
 - Playbook files are also posted at: `https://github.com/gtamilse/ansible-lab/tree/master/playbooks`
+- The following topics are covered:
+  - Raw Module
+  - IOS Command Module
+  - XR Command Module
+  - IOS Config Module
+  - XR Config Module
+  - Variables
+  - Loops
+  - Conditionals
+  - Importing Playbooks
 
 ## 2.1 Raw module
 ### Lab exercise
@@ -988,40 +997,7 @@ ok: [172.16.101.91] => {
         "msg": "All items completed",
         "results": [
             {
-                "_ansible_ignore_errors": null,
-                "_ansible_item_result": true,
-                "_ansible_no_log": false,
-                "_ansible_parsed": true,
-                "changed": false,
-                "failed": false,
-                "invocation": {
-                    "module_args": {
-                        "auth_pass": null,
-                        "authorize": null,
-                        "commands": [
-                            "show run int gig1"
-                        ],
-                        "host": null,
-                        "interval": 1,
-                        "match": "all",
-                        "password": null,
-                        "port": null,
-                        "provider": {
-                            "auth_pass": null,
-                            "authorize": null,
-                            "host": null,
-                            "password": null,
-                            "port": null,
-                            "ssh_keyfile": null,
-                            "timeout": null,
-                            "username": null
-                        },
-                        "retries": 10,
-                        "ssh_keyfile": null,
-                        "timeout": null,
-                        "username": null,
-                        "wait_for": null
-                    }
+            :
                 },
                 "item": "show run int gig1",
                 "stdout": [
@@ -1046,40 +1022,8 @@ ok: [172.16.101.91] => {
                 ]
             },
             {
-                "_ansible_ignore_errors": null,
-                "_ansible_item_result": true,
-                "_ansible_no_log": false,
-                "_ansible_parsed": true,
-                "changed": false,
-                "failed": false,
-                "invocation": {
-                    "module_args": {
-                        "auth_pass": null,
-                        "authorize": null,
-                        "commands": [
-                            "show run int gig2"
-                        ],
-                        "host": null,
-                        "interval": 1,
-                        "match": "all",
-                        "password": null,
-                        "port": null,
-                        "provider": {
-                            "auth_pass": null,
-                            "authorize": null,
-                            "host": null,
-                            "password": null,
-                            "port": null,
-                            "ssh_keyfile": null,
-                            "timeout": null,
-                            "username": null
-                        },
-                        "retries": 10,
-                        "ssh_keyfile": null,
-                        "timeout": null,
-                        "username": null,
-                        "wait_for": null
-                    }
+              :
+                  }
                 },
                 "item": "show run int gig2",
                 "stdout": [
@@ -1104,40 +1048,8 @@ ok: [172.16.101.91] => {
                 ]
             },
             {
-                "_ansible_ignore_errors": null,
-                "_ansible_item_result": true,
-                "_ansible_no_log": false,
-                "_ansible_parsed": true,
-                "changed": false,
-                "failed": false,
-                "invocation": {
-                    "module_args": {
-                        "auth_pass": null,
-                        "authorize": null,
-                        "commands": [
-                            "show clock"
-                        ],
-                        "host": null,
-                        "interval": 1,
-                        "match": "all",
-                        "password": null,
-                        "port": null,
-                        "provider": {
-                            "auth_pass": null,
-                            "authorize": null,
-                            "host": null,
-                            "password": null,
-                            "port": null,
-                            "ssh_keyfile": null,
-                            "timeout": null,
-                            "username": null
-                        },
-                        "retries": 10,
-                        "ssh_keyfile": null,
-                        "timeout": null,
-                        "username": null,
-                        "wait_for": null
-                    }
+            :
+                }
                 },
                 "item": "show clock",
                 "stdout": [
@@ -1568,9 +1480,67 @@ hostname R2-XRv
 - The first task will use the xr_command module to capture show command outputs from R2-XRv router.
 - The second task will use the copy module to write the captured data into a file on the server. The inventory_hostname variable used here is a global variable, which means current device (out of the devices referred in "hosts"), that the tasks are run. Output of inventory_hostname will be R2; the hostname of the router defined in the inventory file.
 - The tasks under the debug module use a conditional statement to check the captured data for abnormalities.
+- Create a playbook, named, p32-xr-health-monitoring.yml
 
 ```
-# PUT PLAYBOOK HERE
+---
+- name: XR Router Health Monitoring
+  hosts: XR
+  gather_facts: false
+  connection: local
+
+  tasks:
+    - name: Router Health Monitoring Commands
+      iosxr_command:
+        commands:
+          - show platform
+          - show redundancy
+          - show proc cpu | ex "0%      0%       0%"
+          - show memory sum location all | in "node|Pyhsical|available"
+          - show ipv4 vrf all int bri
+          - show route sum
+          - show ospf neighbor
+          - show mpls ldp neighbor | in "Id|Up"
+          - show bgp all all sum | in "Address|^[0-9]+"
+
+      register: iosxr_mon
+
+    - name: save output to a file
+      copy:
+          content="\n\n ===show platform=== \n\n {{ iosxr_mon.stdout[0] }} \n\n ===show redundancy=== \n\n {{ iosxr_mon.stdout[1] }} \n\n ===show proc cpu=== \n\n {{ iosxr_mon.stdout[2] }} \n\n ===show memory summary=== \n\n {{ iosxr_mon.stdout[3] }} \n\n ===show ipv4 vrf all int bri=== \n\n {{ iosxr_mon.stdout[4] }} \n\n ===show route sum=== \n\n {{ iosxr_mon.stdout[5] }} \n\n ===show ospf nei=== \n\n {{ iosxr_mon.stdout[6] }} \n\n ===show mpls ldp neighbor=== \n\n {{ iosxr_mon.stdout[7] }} \n\n ===show bgp sum=== \n\n {{iosxr_mon.stdout[8] }}"
+           dest="./{{ inventory_hostname }}_health_check.txt"
+
+    - debug:
+        msg: " {{ inventory_hostname }} show_platform indicates card is down"
+      when: iosxr_mon.stdout[0] | join('') | search('Down')
+
+    - debug:
+        msg: " {{ inventory_hostname }} show_redundancy indicates card is not present"
+      when: iosxr_mon.stdout[1] | join('') | search('NSR not ready since Standby is not Present')
+
+    - debug:
+         msg: "{{ inventory_hostname }} CPU Utilization {{ iosxr_mon.stdout[2] }}"
+
+    - debug:
+        msg: " {{ inventory_hostname }} Memory Available: {{ iosxr_mon.stdout[3] }}"
+
+    - debug:
+        msg: " {{ inventory_hostname }} Interface is Down"
+      when: iosxr_mon.stdout[4] | join('') | search('Down')
+
+    - debug:
+        msg: " {{ inventory_hostname }} Route Summary: {{iosxr_mon.stdout[5]}}"
+
+    - debug:
+        msg: " {{ inventory_hostname }} OSPF Summary: {{iosxr_mon.stdout[6]}}"
+      when: iosxr_mon.stdout[6] | join('') | search('FULL')
+
+    - debug:
+        msg: " {{ inventory_hostname }} MPLS LDP Summary: {{iosxr_mon.stdout[7]}}"
+
+    - debug:
+        msg: " {{ inventory_hostname }} BGP Sessions Down: {{ iosxr_mon.stdout[8] }} "
+      when: iosxr_mon.stdout[8] | join('') | search('Active')
 ```
 
 - Predict the outcome of running this playbook
@@ -1589,10 +1559,66 @@ $ ansible-playbook p32-xr-health-monitoring.yml
 - Data collected can be used in-line or offline for analysis
 
 
-#### Example output
+### Example output
 
 ```
-# PUT OUTPUT
+cisco@ansible-controller:~$ cp gowtham-playbooks/p32-xr-health-monitoring.yml .
+cisco@ansible-controller:~$ ansible-playbook p32-xr-health-monitoring.yml --syntax-check
+
+playbook: p32-xr-health-monitoring.yml
+cisco@ansible-controller:~$ ansible-playbook p32-xr-health-monitoring.yml
+
+PLAY [XR Router Health Monitoring] ***************************************************************************************
+
+TASK [Router Health Monitoring Commands] *********************************************************************************
+ok: [R2]
+
+TASK [save output to a file] *********************************************************************************************
+changed: [R2]
+
+TASK [debug] *************************************************************************************************************
+skipping: [R2]
+
+TASK [debug] *************************************************************************************************************
+ok: [R2] => {
+    "msg": " R2 show_redundancy indicates card is not present"
+}
+
+TASK [debug] *************************************************************************************************************
+ok: [R2] => {
+    "msg": "R2 CPU Utilization CPU utilization for one minute: 0%; five minutes: 0%; fifteen minutes: 0%\n \nPID    1Min    5Min    15Min Process"
+}
+
+TASK [debug] *************************************************************************************************************
+ok: [R2] => {
+    "msg": " R2 Memory Available: node:      node0_0_CPU0\n\fPhysical Memory: 3071M total (1300M available)\n Application Memory : 2868M (1300M available)"
+}
+
+TASK [debug] *************************************************************************************************************
+skipping: [R2]
+
+TASK [debug] *************************************************************************************************************
+ok: [R2] => {
+    "msg": " R2 Route Summary: Route Source                     Routes     Backup     Deleted     Memory(bytes)\nlocal                            5          0          0           800          \nconnected                        1          4          0           800          \ndagr                             0          0          0           0            \nospf 1                           1          0          0           160          \nbgp 1                            0          0          0           0            \nTotal                            7          4          0           1760"
+}
+
+TASK [debug] *************************************************************************************************************
+ok: [R2] => {
+    "msg": " R2 OSPF Summary: * Indicates MADJ interface\n# Indicates Neighbor awaiting BFD session up\n\nNeighbors for OSPF 1\n\nNeighbor ID     Pri   State           Dead Time   Address         Interface\n192.168.0.1     1     FULL/BDR        00:00:36    10.0.0.5        GigabitEthernet0/0/0/0\n    Neighbor is up for 15:08:07\n\nTotal neighbor count: 1"
+}
+
+TASK [debug] *************************************************************************************************************
+ok: [R2] => {
+    "msg": " R2 MPLS LDP Summary: "
+}
+
+TASK [debug] *************************************************************************************************************
+skipping: [R2]
+
+PLAY RECAP ***************************************************************************************************************
+R2                         : ok=8    changed=1    unreachable=0    failed=0
+
+cisco@ansible-controller:~$
 ```
 
 ---
@@ -2016,21 +2042,7 @@ cisco@ansible-controller:~$ cat p33-ospf-config.yml
 
           IMPORTANT:  READ CAREFULLY
           Welcome to the Demo Version of Cisco IOS XRv (the "Software").
-          The Software is subject to and governed by the terms and conditions
-          of the End User License Agreement and the Supplemental End User
-          License Agreement accompanying the product, made available at the
-          time of your order, or posted on the Cisco website at
-          www.cisco.com/go/terms (collectively, the "Agreement").
-          As set forth more fully in the Agreement, use of the Software is
-          strictly limited to internal use in a non-production environment
-          solely for demonstration and evaluation purposes.  Downloading,
-          installing, or using the Software constitutes acceptance of the
-          Agreement, and you are binding yourself and the business entity
-          that you represent to the Agreement.  If you do not agree to all
-          of the terms of the Agreement, then Cisco is unwilling to license
-          the Software to you and (a) you may not download, install or use the
-          Software, and (b) you may return the Software as more fully set forth
-          in the Agreement.
+          :
 
 
           Shared connection to 172.16.101.92 closed.
@@ -2050,21 +2062,7 @@ cisco@ansible-controller:~$ cat p33-ospf-config.yml
 
           IMPORTANT:  READ CAREFULLY
           Welcome to the Demo Version of Cisco IOS XRv (the "Software").
-          The Software is subject to and governed by the terms and conditions
-          of the End User License Agreement and the Supplemental End User
-          License Agreement accompanying the product, made available at the
-          time of your order, or posted on the Cisco website at
-          www.cisco.com/go/terms (collectively, the "Agreement").
-          As set forth more fully in the Agreement, use of the Software is
-          strictly limited to internal use in a non-production environment
-          solely for demonstration and evaluation purposes.  Downloading,
-          installing, or using the Software constitutes acceptance of the
-          Agreement, and you are binding yourself and the business entity
-          that you represent to the Agreement.  If you do not agree to all
-          of the terms of the Agreement, then Cisco is unwilling to license
-          the Software to you and (a) you may not download, install or use the
-          Software, and (b) you may return the Software as more fully set forth
-          in the Agreement.
+          :
 
 
           Shared connection to 172.16.101.92 closed.
@@ -2145,21 +2143,7 @@ Total neighbor count: 1
 
 IMPORTANT:  READ CAREFULLY
 Welcome to the Demo Version of Cisco IOS XRv (the "Software").
-The Software is subject to and governed by the terms and conditions
-of the End User License Agreement and the Supplemental End User
-License Agreement accompanying the product, made available at the
-time of your order, or posted on the Cisco website at
-www.cisco.com/go/terms (collectively, the "Agreement").
-As set forth more fully in the Agreement, use of the Software is
-strictly limited to internal use in a non-production environment
-solely for demonstration and evaluation purposes.  Downloading,
-installing, or using the Software constitutes acceptance of the
-Agreement, and you are binding yourself and the business entity
-that you represent to the Agreement.  If you do not agree to all
-of the terms of the Agreement, then Cisco is unwilling to license
-the Software to you and (a) you may not download, install or use the
-Software, and (b) you may return the Software as more fully set forth
-in the Agreement.
+:
 
 
 Connection to 172.16.101.92 closed by remote host.
@@ -2178,21 +2162,7 @@ O    192.168.0.1/32 [110/2] via 10.0.0.5, 00:01:23, GigabitEthernet0/0/0/0
 
 IMPORTANT:  READ CAREFULLY
 Welcome to the Demo Version of Cisco IOS XRv (the "Software").
-The Software is subject to and governed by the terms and conditions
-of the End User License Agreement and the Supplemental End User
-License Agreement accompanying the product, made available at the
-time of your order, or posted on the Cisco website at
-www.cisco.com/go/terms (collectively, the "Agreement").
-As set forth more fully in the Agreement, use of the Software is
-strictly limited to internal use in a non-production environment
-solely for demonstration and evaluation purposes.  Downloading,
-installing, or using the Software constitutes acceptance of the
-Agreement, and you are binding yourself and the business entity
-that you represent to the Agreement.  If you do not agree to all
-of the terms of the Agreement, then Cisco is unwilling to license
-the Software to you and (a) you may not download, install or use the
-Software, and (b) you may return the Software as more fully set forth
-in the Agreement.
+:
 
 
 Shared connection to 172.16.101.92 closed.
@@ -3044,53 +3014,11 @@ localhost                  : ok=2    changed=0    unreachable=0    failed=0
 ```
 
 ---
-
 # 4. Appendix
 
-## 4.1 Reference
-- Ansible Documentation: http://docs.ansible.com/ansible/latest/index.html
-- YAML Version 1.2 Specs: http://www.yaml.org/spec/1.2/spec.html
-- Jinjia2 Templating: http://jinja.pocoo.org/docs/dev/templates/
-- Ansible installation: https://www.youtube.com/watch?v=NIEVaCBGOUc
-- Introduction to YAML: https://www.youtube.com/watch?v=o9pT9cWzbnI
-- Ansible - Playbooks for beginners: https://www.youtube.com/watch?v=Z01b9QZG0D0
-- Python Configuration generation: - Kirk Byers Blog – Network configuration using Ansbile
-- Ansible Up and Running – Lorin Hochstein
 
----
-
-## 4.2 Ansible installation
-- Ansible control machine is on Linux based systems with Python 2 (versions 2.6 or higher) or Python 3 (versions 3.5 or higher).
-- Red Hat, Debian, CentOS, OS X (MAC OS), Ubuntu, BSDs etc. are supported. MS Windows OS is not supported.
-- Installation steps are straight forward. Depending on your OS flavor, pick the steps from the installation guide.
-- Ansible installation guide: http://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html
-- Just for example, installtion steps for CentOS:
-
-```
-$ sudo yum update
-
-$ sudo yum install ansible
-```
-
-- Installation steps for Ubuntu:
-
-```
-$ sudo apt-get update
-
-$ sudo apt-get install software-properties-common
-
-$ sudo apt-add-repository ppa:ansible/ansible
-
-$ sudo apt-get update
-
-$ sudo apt-get install ansible
-```
-
----
-
-## 4.3 Ansible Vault
-- This section is **optional** and can be skipped. Automation exercises in this lab guide do not depend on Vault.
-- Do this session if you are on time. You can do this later if you run out of time.
+## 4.1 Ansible Vault
+- Ansible Vault is a feature of Ansible that allows you to keep sensitive data such as passwords or keys in encrypted files, rather than as plaintext in playbooks or roles.
 - Ansible vault has many security features but this section will cover only the basics of encrypting and decrypting a file.
 
 ### Objective
@@ -3165,7 +3093,6 @@ $ ansible-playbook p2-ioscmd.yml
 - Review the section and discuss if you have any questions.
 
 ### Example output
-- This section is to be referred on-need basis. If your lab steps go smooth, there is no need to refer this section.
 
 ```
 cisco@ansible-controller:~$ ls -l /etc/ansible/hosts
@@ -3420,7 +3347,13 @@ cisco@ansible-controller:~$
 
 ---
 
-## 4.4 Optional exercise op3-cmd.yml
+## 4.2 Optional exercise op3-cmd.yml
+
+### Objective
+- Write a playbook, op3-cmd.yml, to meet the below requirements:
+  - Collect output of route summary from both IOS and XR routers
+  - Use the modules, ios_command and iosxr_command
+  - Write 2 plays within one playbook.
 
 ### Lab exercise
 - playbook op3-cmd.xml
@@ -3518,7 +3451,12 @@ R2                         : ok=2    changed=0    unreachable=0    failed=0
 ```
 
 ---
-## 4.5 Optional exercise op6-vars.yml
+## 4.3 Optional exercise op6-vars.yml
+### Objective
+- Create a playbook to print messages, "This is <hostname IOS> " and "This is <hostname XR> ".
+- Use default variable, "inventory_hostname". The messages should look like: "This is R1" and "This is R2"
+
+### Lab exercise
 - playbook, op6-vars.yml
 
 ```
@@ -3557,7 +3495,15 @@ R2                         : ok=1    changed=0    unreachable=0    failed=0
 cisco@ansible-controller:~$
 ```
 ---
-## 4.6 Optional exercise op8-conditionals.yml
+## 4.4 Optional exercise op8-conditionals.yml
+### Objective
+- Create a playbook, which will:
+  - Detect router OS
+  - If a router has IOS, print message, "'hostname' is a IOS router" and if a router has XR, print, "'hostname' is a XR router"
+  - Playbook need to find the router names dynamically from the inventory file.
+
+### Lab exercise
+
 - playbook, op8-conditionals.yml
 
 ```
@@ -3616,7 +3562,13 @@ cisco@ansible-controller:~$
 ```
 
 ---
-## 4.7 Optional exercise op31-runcfg-bkup.yml
+## 4.5 Optional exercise op31-runcfg-bkup.yml
+### Objective
+- Create a playbook to backup routers' config, with the below additional requirements:
+  - Filename of the config files should include current timestamp to maintain uniqueness in filenames.
+  - Config backup should be taken daily at 03:00 hrs UTC. Use linux cronjob for this task.
+  - Execute your playbook and verify if the results meet the requirements.
+
 ### Step-1: Playbook, op31-runcfg-bkup.yml
 
 ```
@@ -3708,7 +3660,8 @@ cisco@ansible-controller:~$ ls -ltr R*
 ```
 ---
 
-## 4.8 Optional exercise op33-mop.yml (MOP)
+## 4.6 Optional exercise op33-mop.yml (MOP)
+### Objective
 - We have two additional requirements on top of the MOP playbook that we already did.
   - Insert a delay of 30 seconds before collecting post-config data
   - Create a file with the differences between pre-config and post-config data
@@ -3834,6 +3787,47 @@ cisco@ansible-controller:~$ ls -ltr op33*.txt
 -rw-rw-r-- 1 cisco cisco 489 Jun  8 00:46 op33-xr_diff_2018-06-08-00-46.txt
 cisco@ansible-controller:~$
 ```
+
+---
+
+## 4.7 Ansible installation
+- Ansible control machine is on Linux based systems with Python 2 (versions 2.6 or higher) or Python 3 (versions 3.5 or higher).
+- Red Hat, Debian, CentOS, OS X (MAC OS), Ubuntu, BSDs etc. are supported. MS Windows OS is not supported.
+- Installation steps are straight forward. Depending on your OS flavor, pick the steps from the installation guide.
+- Ansible installation guide: http://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html
+- Just for example, installtion steps for CentOS:
+
+```
+$ sudo yum update
+
+$ sudo yum install ansible
+```
+
+- Installation steps for Ubuntu:
+
+```
+$ sudo apt-get update
+
+$ sudo apt-get install software-properties-common
+
+$ sudo apt-add-repository ppa:ansible/ansible
+
+$ sudo apt-get update
+
+$ sudo apt-get install ansible
+```
+
+---
+
+## 4.8 Reference
+- Ansible Documentation: http://docs.ansible.com/ansible/latest/index.html
+- YAML Version 1.2 Specs: http://www.yaml.org/spec/1.2/spec.html
+- Jinjia2 Templating: http://jinja.pocoo.org/docs/dev/templates/
+- Ansible installation: https://www.youtube.com/watch?v=NIEVaCBGOUc
+- Introduction to YAML: https://www.youtube.com/watch?v=o9pT9cWzbnI
+- Ansible - Playbooks for beginners: https://www.youtube.com/watch?v=Z01b9QZG0D0
+- Python Configuration generation: - Kirk Byers Blog – Network configuration using Ansbile
+- Ansible Up and Running – Lorin Hochstein
 
 ---
 
