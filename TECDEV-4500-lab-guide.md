@@ -8,7 +8,7 @@
 # **<p align="center">Lab Guide</p>**
 
 ---
-your names here<<<
+Gowtham Tamilselvan & Muthuraja Ayyanar
 
 --- 
 
