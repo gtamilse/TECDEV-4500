@@ -15,6 +15,37 @@
 # Table of Contents
 
 
+- [1. Ansible introduction](#1-ansible-introduction)
+	- [1.1 Configuration file](#11-configuration-file)
+	- [1.2 Inventory file](#12-inventory-file)
+	- [1.3 Ansible modules](#13-ansible-modules)
+	- [1.4 Ad-hoc commands](#14-ad-hoc-commands)
+- [2. Playbook primer](#2-playbook-primer)
+	- [2.1 Raw module](#21-raw-module)
+	- [2.2 IOS command module](#22-ios-command-module)
+	- [2.3 XR command module](#23-xr-command-module)
+	- [2.4 IOS config module](#24-ios-config-module)
+	- [2.5 XR config module](#25-xr-config-module)
+	- [2.6 Variables](#26-variables)
+	- [2.7 Loops](#27-loops)
+	- [2.8 Conditionals](#28-conditionals)
+	- [2.9 Importing playbooks](#29-importing-playbooks)
+- [3. Automating common tasks](#3-automating-common-tasks)
+	- [3.1 Router config backup](#31-router-config-backup)
+	- [3.2 Device health monitoring](#32-device-health-monitoring)
+	- [3.3 Method of Procedure (MOP)](#33-method-of-procedure-mop)
+	- [3.4 Generate iBGP Config](#34-generate-ibgp-config)
+	- [3.5 Bulk Config Generation](#35-bulk-config-generation)
+- [4. Appendix](#4-appendix)
+	- [4.1 Ansible Vault](#41-ansible-vault)
+	- [4.2 Optional exercise op3-cmd.yml](#42-optional-exercise-op3-cmdyml)
+	- [4.3 Optional exercise op6-vars.yml](#43-optional-exercise-op6-varsyml)
+	- [4.4 Optional exercise op8-conditionals.yml](#44-optional-exercise-op8-conditionalsyml)
+	- [4.5 Optional exercise op31-runcfg-bkup.yml](#45-optional-exercise-op31-runcfg-bkupyml)
+	- [4.6 Optional exercise op33-mop.yml (MOP)](#46-optional-exercise-op33-mopyml-mop)
+	- [4.7 Ansible installation](#47-ansible-installation)
+	- [4.8 Reference](#48-reference)
+
 ---
 
 # 1. Ansible introduction
