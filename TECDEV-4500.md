@@ -5,7 +5,7 @@
 # **<p align="center">TECDEV-4500</p>**
 
 ---
-<p align="center">Gopal Naganaboyina | Yogi Raghunathan </p>
+<p align="center">Gowtham Tamilselvan | Muthuraja Ayyanar </p>
 
 ---
 # [Lab pod assignment](./TECDEV-4500-Pod-Assignment.md)
