@@ -375,7 +375,6 @@ cisco@ansible-controller:~$ ansible XR --connection local -m iosxr_command -a "c
 - There are two options to create playbook files.
 	- Option-1: Create the file in "Atom" editor, on the laptop. Atom is preconfigured with remote-sync: when you save the file in the default local directory(cl2018), it will automatically get copied to the home directory of your Ansible controller (/home/cisco).
 	- Option-2: Use Ubuntu's "vi" or "vim" editor, which is included in your Ansible controller.
-- Playbook files are also posted at: `https://github.com/gtamilse/ansible-lab/tree/master/playbooks`
 - The following topics are covered:
   - Raw Module
   - IOS Command Module
