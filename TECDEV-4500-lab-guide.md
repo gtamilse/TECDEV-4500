@@ -8,7 +8,6 @@
 # **<p align="center">Lab Guide</p>**
 
 ---
-<p align="center">Gopal Naganaboyina | Yogi Raghunathan </p>
 
 ---
 
