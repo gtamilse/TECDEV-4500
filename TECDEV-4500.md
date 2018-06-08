@@ -8,10 +8,10 @@
 <p align="center">Gopal Naganaboyina | Yogi Raghunathan </p>
 
 ---
-# [Lab pod assignment](https://github.com/gtamilse/ansible-lab/blob/master/TECDEV-4500-Pod-Assignment.md)
-# [Lab access](https://github.com/gtamilse/ansible-lab/blob/master/lab-access.md)
-# [VI reference](https://github.com/gtamilse/ansible-lab/blob/master/vi-reference.md)
-# [Lab guide](https://github.com/gtamilse/ansible-lab/blob/master/TECDEV-4500-labguide-draft-gopal-3.md)
-# [Playbook files](https://github.com/gtamilse/ansible-lab/tree/master/playbooks)
+# [Lab pod assignment](./TECDEV-4500-Pod-Assignment.md)
+# [Lab access](./lab-access.md)
+# [VI reference](./vi-reference.md)
+# [Lab guide](./TECDEV-4500-labguide-draft-gopal-3.md)
+# [Playbook files](./playbooks)
 
 ---
