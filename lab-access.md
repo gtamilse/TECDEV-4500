@@ -36,7 +36,8 @@ ping 172.16.101.93
 
 ### SSH into your Ansible server
 - SSH into your Ansible server using any SSH client
-	- IP address and credentials will be provided
+	- Find your pods node IP from below link
+	- [Lab pod assignment](./TECDEV-4500-Pod-Assignment.md)
 
 ### Verification
 - Execute the below from your Ansible Controller $ prompt
