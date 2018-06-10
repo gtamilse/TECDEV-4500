@@ -271,7 +271,6 @@ cisco@ansible-controller:~$
 ```
 $ ansible --list-hosts IOS
 $ ansible ALL -m raw -a "show clock"
-$ ansible all -m raw -a "ping vrf Mgmt-intf 172.16.101.93"
 $ ansible IOS --connection local -m ios_command -a "commands='show ip route summ'"
 $ ansible XR --connection local -m iosxr_command -a "commands='show route summ'"
 ```
@@ -1137,7 +1136,6 @@ cisco@ansible-controller:~$
 ---
 - name: get route summary from IOS and XR routers
   hosts: ALL
-	connection: local
 
   tasks:
     - name: collect version info
