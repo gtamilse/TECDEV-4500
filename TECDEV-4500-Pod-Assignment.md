@@ -1,8 +1,9 @@
-# TECDEV-4500 POD ASSIGNMENT for Session 2
+# TECDEV-4500 Pod Assignment for Session 2
 
 # Lab Nodes Login Credentials
 - username: cisco
 - password: cisco
+- Only login to the Ansible-Controller Node
 
 # User pod assignment
 
