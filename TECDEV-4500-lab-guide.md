@@ -81,6 +81,7 @@ grep -v "#" /etc/ansible/ansible.cfg | grep -v ^$
 
 - Edit the config file
   - Use your favorite editing method to edit the file
+  - Use sudo if needed, sudo password is cisco
   - Ubuntu inbuilt editors: vi, vim
   - [VI reference](./vi-reference.md)
 
