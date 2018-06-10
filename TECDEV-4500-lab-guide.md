@@ -71,7 +71,7 @@
 grep -v "#" /etc/ansible/ansible.cfg | grep -v ^$
 ```
 
-- In this section, you will edit 4 settings, under [default] section:
+- In this section, you will edit/uncomment the following settings, under [default] section:
   - inventory  = /etc/ansible/hosts
   - deprecation_warning = False
   - gathering = explicit
@@ -82,6 +82,7 @@ grep -v "#" /etc/ansible/ansible.cfg | grep -v ^$
 - Edit the config file
   - Use your favorite editing method to edit the file
   - Ubuntu inbuilt editors: vi, vim
+  - [VI reference](./vi-reference.md)
 
 ```
 vi /etc/ansible/ansible.cfg
@@ -130,7 +131,7 @@ retry_files_enabled = False
 - Find out your IOS and XR router mgmt IP addresses from the pod assignment sheet. Plug them in the file below.
 - Edit the hosts file
   - Ubuntu inbuilt editors: vi, vim
-
+  - Use sudo if needed, sudo password is cisco
 ```
 vi /etc/ansible/hosts
 ```
@@ -149,7 +150,7 @@ cisco@ansible-controller:~$ cat /etc/ansible/hosts | grep -v "#" | grep -v ^$
 IOS
 XR
 ```
-- Verification:
+- Run the following verification commands:
 
 ```
 $ ansible --list-hosts IOS
@@ -158,7 +159,6 @@ $ ansible --list-hosts ALL
 $ ansible --list-hosts all
 ```
 ### Example output
-- Reference purpose only. Feel free to skip it.
 
 ```
 cisco@ansible-controller:~$ grep inventory /etc/ansible/ansible.cfg | grep hosts
