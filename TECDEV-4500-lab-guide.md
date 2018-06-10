@@ -51,7 +51,7 @@
 # 1. Ansible introduction
 
 ### Objective
-- Review Ansible customization in your pod
+- Setup your ansible environment: ansible.cfg & hosts file
 - Run Ansible ad-hoc commands
 
 ### Lab exercises
@@ -62,52 +62,55 @@
  - Ad-hoc commands
 
 ## 1.1 Configuration file
-- Ansible configuration file is preconfigured for you.
-- We uncommented the following config lines, under [default] section:
-	- inventory --> use default inventory file, /etc/ansible/hosts
-	- gathering: --> set to explicit, to not gather facts by default
-	- host_key_checking --> Do not expect ssh keys for authentication
-	- timeout --> set timeout to 10 sec.
-	- retry_files_enabled --> do not create retry files
-- Execute the below to review the Ansible installation and the config file:
+- Find Ansible config file
+  - `$ ansible --version`
+  - This output points to `config file = /etc/ansible/ansible.cfg`
+- Browse the config file and quickly go over different sections, denoted by []
 
 ```
-$ which ansible
-$ ansible --help
-$ ansible --version
-$ cat /etc/ansible/ansible.cfg
-$ cat /etc/ansible/ansible.cfg | grep -v "#" | grep -v ^$
+grep -v "#" /etc/ansible/ansible.cfg | grep -v ^$
 ```
 
-### Example output
-- Just for reference, if you need to compare your lab output to someone else's.
-- You don't need to refer this if your steps go smooth.
+- In this section, you will edit 4 settings, under [default] section:
+  - inventory  = /etc/ansible/hosts
+  - deprecation_warning = False
+  - gathering = explicit
+  - host_key_checking = False
+  - timeout = 10
+  - retry_files_enabled = False
+
+- Edit the config file
+  - Use your favorite editing method to edit the file
+  - Ubuntu inbuilt editors: vi, vim
 
 ```
-cisco@ansible-controller:~$ which ansible
-/usr/bin/ansible
-cisco@server-1:~$ ansible --help
-Usage: ansible <host-pattern> [options]
-:
-Some modules do not make sense in Ad-Hoc (include, meta, etc)
-cisco@server-1:~$
-cisco@ansible-controller:~$ ansible --version
-ansible 2.5.0
-  config file = /etc/ansible/ansible.cfg	<<<
-  configured module search path = [u'/home/cisco/.ansible/plugins/modules', u'/usr/share/ansible/plugins/modules']
-  ansible python module location = /usr/lib/python2.7/dist-packages/ansible
-  executable location = /usr/bin/ansible
-  python version = 2.7.6 (default, Oct 26 2016, 20:30:19) [GCC 4.8.4]
-cisco@ansible-controller:~$ cat /etc/ansible/ansible.cfg | grep -v "#" | grep -v ^$
+vi /etc/ansible/ansible.cfg
+```
+
+  - The target config lines are already there in the file but are commented. Simply delete # at the beginning of the line.
+
+- After editing, the config file will look like below.
+
+### Sample output
+
+```
+cisco@ansible-controller:~$ grep -v "^#" /etc/ansible/ansible.cfg | grep -v ^$
+
 [defaults]
 inventory      = /etc/ansible/hosts
 gathering = explicit
 host_key_checking = False
 timeout = 10
-deprecation_warnings = False
 retry_files_enabled = False
-:
-cisco@ansible-controller:~$
+[inventory]
+[privilege_escalation]
+[paramiko_connection]
+[ssh_connection]
+[persistent_connection]
+[accelerate]
+[selinux]
+[colors]
+[diff]
 ```
 ### Reference
 > This is for later use. Skip for now. http://docs.ansible.com/ansible/latest/reference_appendices/config.html#ansible-configuration-settings
@@ -121,13 +124,30 @@ cisco@ansible-controller:~$
 ---
 
 ## 1.2 Inventory file
-- Inventory file is preconfigured for you. We added your router IP addresses in two groups: IOS and XR.
-- Review the inventory file:
+- Edit your default inventory file: /etc/ansible/hosts
+- Create two device groups: IOS and XR
+- Assign the following variables to the devices: ansible_user=cisco ansible_ssh_pass=cisco
+- Find out your IOS and XR router mgmt IP addresses from the pod assignment sheet. Plug them in the file below.
+- Edit the hosts file
+  - Ubuntu inbuilt editors: vi, vim
 
 ```
-$ grep inventory /etc/ansible/ansible.cfg | grep hosts
-$ cat /etc/ansible/hosts
-$ cat /etc/ansible/hosts | grep -v "#" | grep -v ^$
+vi /etc/ansible/hosts
+```
+
+### Example output
+```
+cisco@ansible-controller:~$ cat /etc/ansible/hosts | grep -v "#" | grep -v ^$
+
+[IOS]
+172.16.101.X ansible_user=cisco ansible_ssh_pass=cisco
+
+[XR]
+172.16.101.X ansible_user=cisco ansible_ssh_pass=cisco
+
+[ALL:children]
+IOS
+XR
 ```
 - Verification:
 
