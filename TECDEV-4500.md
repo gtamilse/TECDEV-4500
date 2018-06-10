@@ -13,5 +13,6 @@
 # [VI reference](./vi-reference.md)
 # [Lab guide](./TECDEV-4500-lab-guide.md)
 # [Playbook files](./playbooks)
+# [Lecture Slides](./Tecdev4500-Network-Automation-with-Ansible.pdf)
 
 ---
