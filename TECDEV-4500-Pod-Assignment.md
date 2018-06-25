@@ -1,4 +1,4 @@
-# TECDEV-4500 Pod Assignment for Session 2
+# TECDEV-4500 Pod Assignment
 
 # Lab Nodes Login Credentials
 - username: cisco
