@@ -12,6 +12,6 @@
 # [VI reference](./vi-reference.md)
 # [Lab guide](./Network-Automation-with-Ansible.md)
 # [Playbook files](./playbooks)
-# [Lecture Slides](./Tecdev4500-Network-Automation-with-Ansible.pdf)
+# [Lecture Slides](./Network-Automation-with-Ansible.pdf)
 
 ---
