@@ -11,7 +11,7 @@
 # [Lab pod assignment](./TECDEV-4500-Pod-Assignment.md)
 # [Lab access](./lab-access.md)
 # [VI reference](./vi-reference.md)
-# [Lab guide](./TECDEV-4500-lab-guide.md)
+# [Lab guide](./Network-Automation-with-Ansible.md)
 # [Playbook files](./playbooks)
 # [Lecture Slides](./Tecdev4500-Network-Automation-with-Ansible.pdf)
 
