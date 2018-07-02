@@ -6,7 +6,7 @@
 
 ---
 ### **<p align="center">Gopal Naganaboyina | Gowtham Tamilselvan | Muthuraja Ayyanar | Yogi Raghunathan </p>**
-### **<p align="center">June 25 2018</p>**
+### **<p align="center">July 2 2018</p>**
 --- 
 
 # Table of Contents
@@ -2233,7 +2233,7 @@ localhost                  : ok=2    changed=2    unreachable=0    failed=0
 ### Approach
 
 - Step-1: Manually create the roles directory structure for the 2 router types (IOS & XR).
-- Step-2: Create a playbook roles-bgy.yml to call the two roles (csr-bgp & xr-bgp) to generate the iBGP config and to upload the generated config to the routers.
+- Step-2: Create a playbook roles-bgp.yml to call the two roles (csr-bgp & xr-bgp) to generate the iBGP config and to upload the generated config to the routers.
 - Step-3: Create main.yml files under the tasks and vars folders to setup the tasks to be executed when the roles are called.
 - Step-4: Create the iBGP configuration template for csr and xr router using Jinja2 templating format.
 - Step-5: Execute the playbook roles-bgp.yml to generate the iBGP config and apply it to both routers.
@@ -2344,7 +2344,7 @@ router_list:
 - Note vi users do the following to create the file.
 
 ```
-cisco@ansible-controller:~$ vi csr-bgp/templates/ CSR-BGP.j2
+cisco@ansible-controller:~$ vi csr-bgp/templates/CSR-BGP.j2
 ```
 - Note ATOM users do the following once the file has been created on the home directory.
 
@@ -2413,12 +2413,12 @@ router_list:
 - Note vi users do the following to create the file.
 
 ```
-$ vi csr-bgp/templates/XR-BGP.j2
+$ vi xr-bgp/templates/XR-BGP.j2
 ```
 - Note ATOM users do the following once the file has been created on the home directory.
 
 ```
-$ mv XR-BGP.j2 csr-bgp/templates/XR-BGP.j2
+$ mv XR-BGP.j2 xr-bgp/templates/XR-BGP.j2
 ```
 - Paste the following inside the templates XR-BGP.j2 file.
 
@@ -2462,13 +2462,13 @@ xr-bgp
 #### Step-11: Execute the roles-bgp.yml playbook.
 
 ```
-cisco@ansible-controller:~/roles-templates$ ansible-playbook roles-bgp.yml
+cisco@ansible-controller:~$ ansible-playbook roles-bgp.yml
 ```
 
-#### Step-12: After the playbook is run, there should be 2 files generated on the current working directory (R1-CSR1K-BGP.txt & R2-XRv-BGP.txt).
+#### Step-12: After the playbook is run, there should be 2 files generated (R1-CSR1K-BGP.txt & R2-XRv-BGP.txt).
 
 ```
-cisco@ansible-controller:more cfg/R1-CSR1K-BGP.txt
+cisco@ansible-controller:more R1-CSR1K-BGP.txt
 router bgp 1
  bgp router-id 192.168.0.1
  bgp log-neighbor-changes
@@ -2476,7 +2476,7 @@ router bgp 1
  neighbor 192.168.0.2 update-source Loopback0
 !
 
-cisco@ansible-controller:more cfg/R2-XRv-BGP.txt
+cisco@ansible-controller:more R2-XRv-BGP.txt
 router bgp 1
  bgp router-id 192.168.0.2
  address-family ipv4 unicast
